@@ -10,12 +10,13 @@ import Settings from './components/Settings'
 
 const Home: NextPage = () => {
   return (
-    <Account>
-      <Status/>
-      <SignUp/>
-      <Login/>
-      <Settings/>
-    </Account>
+    <div className="test">test</div>
+    // <Account>
+    //   <Status/>
+    //   <SignUp/>
+    //   <Login/>
+    //   <Settings/>
+    // </Account>
   )
 }
 

@@ -4,22 +4,25 @@ import { AccountContext } from "./Account";
 import UserPool from "./UserPool";
 import { CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
 
-interface SignUpProps {
+interface LoginProps {
   signOut?: any;
   user?: any;
-  onChange: Function;
   setUiState: Function;
-  signUp: Function;
 }
 
-const Login: FunctionComponent<SignUpProps> = ({}) => {
+const Login: FunctionComponent<LoginProps> = ({setUiState}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { authenticate } = useContext(AccountContext);
-  const onSubmit = (event) => {
+  const { authenticate, userForgotPassword } = useContext(AccountContext);
+  const onSubmit = (event: any) => {
     event.preventDefault();
     authenticate(email,password);
   };
+  const handleForgotPassword = async (event: any) => {
+    event.preventDefault();
+    userForgotPassword(email);
+    
+  }
 
   return (
     <div className="w-full h-screen  bg-white text-blue">
@@ -87,12 +90,12 @@ const Login: FunctionComponent<SignUpProps> = ({}) => {
               </div>
 
               <div className="text-sm">
-                <a
-                  href="#"
+                <p
+                onClick={handleForgotPassword}
                   className="font-medium text-blue hover:text-blue"
                 >
                   Forgot your password?
-                </a>
+                </p>
               </div>
             </div>
 
@@ -105,6 +108,16 @@ const Login: FunctionComponent<SignUpProps> = ({}) => {
               </button>
             </div>
           </form>
+          <div className="mt-12 text-sm text-black font-light">
+          Don{`'`}t an account?
+          <span
+            onClick={() => setUiState("signUp")}
+            role="button"
+            className="cursor-pointer text-blue"
+          >
+            {` `}Sign Up
+          </span>
+        </div>
         </div>
       </div>
     </div>

@@ -1,32 +1,25 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useContext } from "react";
 import { useState, useEffect } from "react";
+import { AccountContext } from "./Account";
 import UserPool from "./UserPool";
 
 interface SignUpProps {
   signOut?: any;
   user?: any;
-  onChange: Function;
   setUiState: Function;
-  signUp: Function;
 }
 
-const SignUp: FunctionComponent<SignUpProps> = ({}) => {
+const SignUp: FunctionComponent<SignUpProps> = ({setUiState}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const onSubmit = (event) => {
+  const { signUpUser } = useContext(AccountContext);
+  const onSubmit = (event: any) => {
     event.preventDefault();
-    UserPool.signUp(email, password, [], null, (err, data) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log(data);
-      }
-    });
+    signUpUser(email, password);
   };
 
   return (
-    <div className="w-full h-screen  bg-white text-blue">
+    <div className="w-full h-screen  bg-white ">
       <div>
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
@@ -104,10 +97,20 @@ const SignUp: FunctionComponent<SignUpProps> = ({}) => {
                   type="submit"
                   className="flex w-full justify-center rounded-md border border-transparent bg-blue py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-600focus:outline-none focus:ring-2 focus:ring-blue focus:ring-offset-2"
                 >
-                  Sign in
+                  Sign Up
                 </button>
               </div>
             </form>
+            <div className="mt-12 text-sm text-black font-light">
+          Have an account?
+          <span
+            onClick={() => setUiState("signIn")}
+            role="button"
+            className="cursor-pointer text-blue"
+          >
+            {` `}Sign In
+          </span>
+        </div>
           </div>
         </div>
       </div>
