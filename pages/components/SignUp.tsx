@@ -7,17 +7,20 @@ interface SignUpProps {
   signOut?: any;
   user?: any;
   setUiState: Function;
+  setUser: Function;
 }
 
-const SignUp: FunctionComponent<SignUpProps> = ({setUiState}) => {
+const SignUp: FunctionComponent<SignUpProps> = ({setUiState, setUser}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signUpUser } = useContext(AccountContext);
-  const onSubmit = (event: any) => {
+  const { signUpUser, getCognitoUser } = useContext(AccountContext);
+  const onSubmit = async (event: any) => {
     event.preventDefault();
-    signUpUser(email, password);
+    const data = await signUpUser(email, password);
+    setUser(data.user);
+    setUiState('verifyEmail')
   };
-
+  
   return (
     <div className="w-full h-screen  bg-white ">
       <div>

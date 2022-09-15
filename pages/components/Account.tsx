@@ -2,47 +2,47 @@ import React, { createContext, FunctionComponent, ReactNode } from "react";
 import { useState, useEffect } from "react";
 import UserPool from "./UserPool";
 import { CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 interface AccountProps {
- children: ReactNode
-setUiState: Function
+  children: ReactNode;
+  setUiState: Function;
+  setUser: Function;
 }
 
 const AccountContext = createContext<any>(null);
 const Account: FunctionComponent<AccountProps> = (props) => {
-
-    const router = useRouter();
-    const getSession = async () => {
-        return await new Promise((resolve, reject) =>{
-            const user = UserPool.getCurrentUser();
-            if(user){
-                user.getSession(async (err: any, session: any) => {
-                    if(err){
-                        reject();
-                    } else {
-                        const attributes: Object = await new Promise((resolve, reject) => {
-                            user.getUserAttributes((err, attributes) => {
-                                if(err){
-                                    reject(err);
-                                }else {
-                                    const results: any = {};
-                                    for (let attribute of attributes!){
-                                        const {Name, Value} = attribute;
-                                        results[Name] = Value;
-                                    }
-                                    resolve(results);
-                                }
-                            })
-                        })
-                        resolve({user, ...session, ...attributes});
-                    }
-                })
-            } else {
-                reject();
-            }
-        })
-    };
-  const userForgotPassword = async (Username:string) => {
+  const router = useRouter();
+  const getSession = async () => {
+    return await new Promise((resolve, reject) => {
+      const user = UserPool.getCurrentUser();
+      if (user) {
+        user.getSession(async (err: any, session: any) => {
+          if (err) {
+            reject();
+          } else {
+            const attributes: Object = await new Promise((resolve, reject) => {
+              user.getUserAttributes((err, attributes) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  const results: any = {};
+                  for (let attribute of attributes!) {
+                    const { Name, Value } = attribute;
+                    results[Name] = Value;
+                  }
+                  resolve(results);
+                }
+              });
+            });
+            resolve({ user, ...session, ...attributes });
+          }
+        });
+      } else {
+        reject();
+      }
+    });
+  };
+  const userForgotPassword = async (Username: string) => {
     return await new Promise((resolve, reject) => {
       const user = new CognitoUser({ Username, Pool: UserPool });
       user!.forgotPassword({
@@ -51,20 +51,19 @@ const Account: FunctionComponent<AccountProps> = (props) => {
           resolve(data);
           router.reload();
         },
-        onFailure: (err: Error) =>  {
+        onFailure: (err: Error) => {
           console.error("onfailure", err);
-          reject(err)
+          reject(err);
         },
-        inputVerificationCode: ((data: any) => {
+        inputVerificationCode: (data: any) => {
           console.warn("input code details: ", data);
           // Print the message onto the screen to show them the status of this
-          
-        })
+        },
       });
     });
   };
 
- const authenticate = async (Username:string, Password:string) => {
+  const authenticate = async (Username: string, Password: string) => {
     return await new Promise((resolve, reject) => {
       const user = new CognitoUser({ Username, Pool: UserPool });
 
@@ -77,46 +76,80 @@ const Account: FunctionComponent<AccountProps> = (props) => {
         onSuccess: (data) => {
           console.log("onsuccess", data);
           resolve(data);
+          
           router.reload();
         },
         onFailure: (err) => {
           console.error("onsuccess", err);
-          reject(err)
+          reject(err);
         },
         newPasswordRequired: (data) => {
           console.log("newPasswordRequired: ", data);
-          resolve(data)
+          resolve(data);
         },
       });
     });
   };
-const signUpUser = async (Username:string, Password:string) => {
+  const signUpUser = async (Username: string, Password: string) => {
     return await new Promise((resolve, reject) => {
       UserPool.signUp(Username, Password, [], null!, (err, data) => {
         if (err) {
           alert(err.message);
-          reject(err)
+          reject(err);
         } else {
           resolve(data);
           console.log(data);
+        }
+      });
+    });
+  };
+
+  function getCognitoUser(username: string) {
+    const userData = {
+      Username: username,
+      Pool: UserPool,
+    };
+    const cognitoUser = new CognitoUser(userData);
+
+    return cognitoUser;
+  }
+
+  const logout = () => {
+    const user = UserPool.getCurrentUser();
+    if (user) {
+      user.signOut();
+      router.reload();
+    }
+  };
+  const changeCurrentUserPassword = (Password:any, NewPassword:any) => {
+    console.log()
+    getSession().then(({ user }: any) => {
+      user.changePassword(Password, NewPassword, (err:any, result:any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(result);
         }
 
       });
     });
   };
 
-  const logout = () => {
-    const user = UserPool.getCurrentUser();
-    if(user){
-        user.signOut()
-        router.reload();
-    }
-    
-  }
-
-  return <AccountContext.Provider value={{ authenticate, getSession, userForgotPassword,logout, signUpUser }}>
-    {props.children}
-  </AccountContext.Provider>;
+  return (
+    <AccountContext.Provider
+      value={{
+        authenticate,
+        getSession,
+        userForgotPassword,
+        logout,
+        signUpUser,
+        getCognitoUser,
+        changeCurrentUserPassword
+      }}
+    >
+      {props.children}
+    </AccountContext.Provider>
+  );
 };
 
-export { Account, AccountContext};
+export { Account, AccountContext };

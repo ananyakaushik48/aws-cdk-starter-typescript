@@ -32,6 +32,8 @@ const Status: FunctionComponent<StatusProps> = ({setUiState}) => {
   return (
     <div>
       {status ? <button onClick={logout}>Logout</button> : <button onClick={() => setUiState("signIn")}>Please sign in </button>}
+      <button onClick={() => setUiState('settingsPage')}> Settings </button>
+      
     </div>
   );
 };

@@ -6,6 +6,7 @@ import Login from './components/Login'
 import Settings from './components/Settings'
 import SignUp from './components/SignUp'
 import Status from './components/Status'
+import VerifyEmail from './components/VerifyEmail'
 
 
 
@@ -14,7 +15,7 @@ const AuthPage: NextPage = () => {
     const [user, setUser] = useState<user>(null);
 
     return (
-      <Account setUiState={setUiState}>
+      <Account setUiState={setUiState} setUser={setUser}>
         <Status setUiState={setUiState}/>
         
         {uiState === "signIn" && (
@@ -23,11 +24,23 @@ const AuthPage: NextPage = () => {
         </>
         )}{uiState === "signUp" && (
         <>
-          <SignUp setUiState={setUiState}/>
+          <SignUp setUiState={setUiState} setUser={setUser} />
+        </>
+        )}{uiState === "verifyEmail" && (
+        <>
+          <VerifyEmail setUiState={setUiState} userData={user}/>
+        </>
+        )}{uiState === "changePassword" && (
+        <>
+          <VerifyEmail setUiState={setUiState} userData={user}/>
+        </>
+        )}{uiState === "settingsPage" && (
+        <>
+        <Settings/>
+      <button onClick={()=> setUiState('signedIn')}>Cancel</button>
         </>
         )}
         
-        {/* <Settings/> */}
       </Account>
     )
   }
